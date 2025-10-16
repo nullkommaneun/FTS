@@ -1,7 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     // === FEHLER-TOOL (unverändert) ===
-    // ...
     const errorLogContainer = document.getElementById('error-log-container');
     window.addEventListener('error', function(event) { console.error("Unerwarteter Fehler:", event); errorLogContainer.style.display = 'block'; const errorMessageElement = document.createElement('div'); errorMessageElement.className = 'error-message'; const fileName = event.filename.split('/').pop(); errorMessageElement.textContent = `🐛 FEHLER: "${event.message}"\n📄 Datei: ${fileName} (Zeile: ${event.lineno})`; errorLogContainer.prepend(errorMessageElement); });
     const errorTestButton = document.getElementById('errorTestButton');
@@ -9,7 +8,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     try {
         // === GRUNDSETUP (unverändert) ===
-        // ...
         const canvas = document.getElementById('simulationCanvas');
         const ctx = canvas.getContext('2d');
         canvas.width = 800;
@@ -34,34 +32,27 @@ document.addEventListener('DOMContentLoaded', () => {
         ];
 
         // === ZEICHEN-FUNKTION & EDITOR (unverändert) ===
-        // ...
         function drawLayout() { for (let row = 0; row < layout.length; row++) { for (let col = 0; col < layout[row].length; col++) { const tileType = layout[row][col]; let color; switch (tileType) { case 1: color = COLORS.wall; break; case 2: color = COLORS.station; break; case 3: color = COLORS.goal; break; default: color = COLORS.path; break; } ctx.fillStyle = color; ctx.fillRect(col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE); ctx.strokeStyle = '#ddd'; ctx.strokeRect(col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE); } } }
         let selectedTileType = 1; let isPainting = false; const paletteItems = document.querySelectorAll('.palette-item'); paletteItems.forEach(item => { item.addEventListener('click', () => { paletteItems.forEach(p => p.classList.remove('selected')); item.classList.add('selected'); selectedTileType = parseInt(item.dataset.type); }); }); function paintTile(event) { const rect = canvas.getBoundingClientRect(); const mouseX = event.clientX - rect.left; const mouseY = event.clientY - rect.top; const col = Math.floor(mouseX / TILE_SIZE); const row = Math.floor(mouseY / TILE_SIZE); if (row >= 0 && row < layout.length && col >= 0 && col < layout[0].length) { if (layout[row][col] !== selectedTileType) { layout[row][col] = selectedTileType; drawLayout(); } } }
         canvas.addEventListener('mousedown', (event) => { isPainting = true; paintTile(event); }); canvas.addEventListener('mousemove', (event) => { if (isPainting) { paintTile(event); } }); canvas.addEventListener('mouseup', () => { isPainting = false; }); canvas.addEventListener('mouseleave', () => { isPainting = false; });
 
-        // --- AKTUALISIERT: Die FTS-Klasse bekommt neue Eigenschaften für die Bewegung ---
+        // === FTS-KLASSE (unverändert) ===
         class FTS {
             constructor(col, row, color = 'orange') {
-                // NEU: Wir speichern die exakte Pixel-Position für flüssige Bewegungen
                 this.x = col * TILE_SIZE + TILE_SIZE / 2;
                 this.y = row * TILE_SIZE + TILE_SIZE / 2;
-                
                 this.color = color;
-                this.speed = 2; // Pixel pro Frame
-                
-                this.path = []; // Der Pfad, dem das FTS folgen soll
-                this.pathIndex = 0; // Der aktuelle Zielpunkt im Pfad
+                this.speed = 2; // Pixel pro Frame (für flüssige Animation)
+                this.path = [];
+                this.pathIndex = 0;
             }
             
-            // NEU: Setzt einen neuen Pfad für das FTS
             setPath(path) {
                 this.path = path;
                 this.pathIndex = 0;
             }
 
-            // NEU: Die Update-Methode steuert die gesamte Bewegungslogik
             update() {
-                // Wenn es keinen Pfad gibt oder der Pfad abgeschlossen ist, tue nichts.
                 if (this.path.length === 0 || this.pathIndex >= this.path.length) {
                     return;
                 }
@@ -75,10 +66,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 const distance = Math.sqrt(dx * dx + dy * dy);
 
                 if (distance < this.speed) {
-                    // Wir sind am Zielpunkt angekommen
+                    // Am aktuellen Zielpunkt angekommen, nimm den nächsten
                     this.x = targetX;
                     this.y = targetY;
-                    this.pathIndex++; // Nächstes Ziel im Pfad ansteuern
+                    this.pathIndex++;
+                    // Optional: Wenn der Pfad komplett ist, könnte er hier wieder von vorne beginnen
+                    // if (this.pathIndex >= this.path.length) { this.pathIndex = 0; }
                 } else {
                     // Bewege dich in Richtung Zielpunkt
                     this.x += (dx / distance) * this.speed;
@@ -87,7 +80,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             draw(context) {
-                // Zeichnet jetzt an den exakten Pixel-Koordinaten
                 const radius = TILE_SIZE / 3;
                 context.fillStyle = this.color;
                 context.beginPath();
@@ -98,48 +90,52 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // === FTS-Flotte erstellen (unverändert) ===
-        const fts1 = new FTS(2, 2, '#f1c40f');
-        const fts2 = new FTS(4, 8, '#e74c3c');
+        // === FTS-Flotte erstellen ===
+        const fts1 = new FTS(2, 2, '#f1c40f'); // Gelb
+        const fts2 = new FTS(4, 8, '#e74c3c'); // Rot
         const vehicles = [fts1, fts2];
 
-        // --- NEU: Wir definieren einfache Test-Pfade für unsere FTS ---
+        // --- AKTUALISIERT: Wir definieren jetzt GÜLTIGE Test-Pfade für unsere FTS ---
+        // fts1: Start (2,2) -> fährt ein Stück nach unten, dann rechts
         const path1 = [
-            { col: 2, row: 8 },
-            { col: 6, row: 8 },
-            { col: 6, row: 2 },
-            { col: 2, row: 2 }
+            { col: 2, row: 3 },
+            { col: 2, row: 4 },
+            { col: 3, row: 4 },
+            { col: 4, row: 4 },
+            { col: 4, row: 3 },
+            { col: 4, row: 2 } // Kehrt zum Startbereich zurück
         ];
         fts1.setPath(path1);
 
+        // fts2: Start (4,8) -> fährt ein Stück nach rechts, dann zur Ladestation
         const path2 = [
-            { col: 17, row: 10 },
-            { col: 17, row: 1 },
-            { col: 4,  row: 1 },
-            { col: 4,  row: 8 },
+            { col: 5, row: 8 },
+            { col: 6, row: 8 },
+            { col: 7, row: 8 },
+            { col: 7, row: 7 },
+            { col: 7, row: 6 },
+            { col: 7, row: 5 },
+            { col: 8, row: 5 },
+            { col: 9, row: 5 }, // Zum Feld neben der Ladestation
+            { col: 9, row: 4 }  // Zur Ladestation selbst
         ];
         fts2.setPath(path2);
 
 
-        // --- AKTUALISIERT: Die Hauptschleife ruft jetzt auch die update-Methode auf ---
+        // === HAUPTSCHLEIFE (Game Loop) (unverändert) ===
         function gameLoop() {
             drawLayout();
-            
-            // FÜR JEDES FAHRZEUG:
             for (const vehicle of vehicles) {
-                vehicle.update(); // 1. Position aktualisieren (NEU)
-                vehicle.draw(ctx);  // 2. An der neuen Position zeichnen
+                vehicle.update();
+                vehicle.draw(ctx);
             }
-
             requestAnimationFrame(gameLoop);
         }
 
-        // --- HAUPT-LOGIK (unverändert) ---
-        console.log("Starte Simulations-Loop...");
+        console.log("Starte Simulations-Loop mit korrigierten Pfaden...");
         gameLoop();
 
     } catch (error) {
-        // ... Fehlerbehandlung
         const event = new ErrorEvent('error', { error: error, message: `Schwerer Initialisierungsfehler: ${error.message}`, filename: 'script.js', lineno: 0 });
         window.dispatchEvent(event);
     }
