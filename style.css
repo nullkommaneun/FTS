@@ -4,7 +4,8 @@ body {
     flex-direction: column;
     align-items: center;
     margin: 0;
-    padding: 20px;
+    /* Etwas Platz am unteren Rand für den Fehler-Log lassen */
+    padding: 20px 20px 150px 20px; 
     background-color: #f0f2f5;
 }
 
@@ -15,4 +16,39 @@ h1 {
 #simulationCanvas {
     border: 2px solid #333;
     background-color: #fff;
+    max-width: 100%; /* Sorgt für bessere mobile Darstellung */
+}
+
+/* --- NEUE STILE FÜR DAS FEHLER-TOOL --- */
+
+#errorTestButton {
+    margin-top: 20px;
+    padding: 10px 15px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+#error-log-container {
+    position: fixed; /* Bleibt immer an der gleichen Stelle, auch beim Scrollen */
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    max-height: 120px; /* Begrenzt die Höhe */
+    background-color: #440c0c; /* Dunkelroter Hintergrund */
+    color: #ffc2c2; /* Heller Text für Kontrast */
+    border-top: 2px solid #ff0000;
+    padding: 10px;
+    box-sizing: border-box; /* Padding wird in die Breite eingerechnet */
+    overflow-y: auto; /* Fügt eine Scrollbar hinzu, wenn nötig */
+    font-family: 'Courier New', monospace; /* Besser lesbar für Code-Fehler */
+    font-size: 0.9em;
+    display: none; /* Ist standardmäßig unsichtbar */
+    z-index: 9999; /* Stellt sicher, dass es über allem liegt */
+}
+
+.error-message {
+    padding-bottom: 5px;
+    margin-bottom: 5px;
+    border-bottom: 1px solid #772e2e;
+    white-space: pre-wrap; /* Wichtig, damit Zeilenumbrüche im Fehlertext angezeigt werden */
 }
