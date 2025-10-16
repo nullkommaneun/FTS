@@ -1,49 +1,60 @@
-// Stellt sicher, dass das Skript erst nach dem Laden der kompletten HTML-Seite ausgeführt wird.
 document.addEventListener('DOMContentLoaded', () => {
 
-    // === MÄCHTIGES FEHLER-TOOL ===
-    // Dieser "globale" Event-Listener fängt alle Fehler ab, die im Code auftreten.
-    // Das ist extrem nützlich für die Fehlersuche (Debugging).
+    // === ERWEITERTES FEHLER-TOOL FÜR DIE WEBSITE ===
+    const errorLogContainer = document.getElementById('error-log-container');
+
     window.addEventListener('error', function(event) {
-        console.error("Ein unerwarteter Fehler ist aufgetreten:", {
-            message: event.message,
-            filename: event.filename,
-            lineNumber: event.lineno,
-            errorObject: event.error
-        });
-        // Optional: Man könnte hier die Simulation anhalten, um weitere Fehler zu vermeiden.
+        // Log für die Konsole (am PC weiterhin nützlich)
+        console.error("Unerwarteter Fehler:", event);
+
+        // Mache den Fehler-Container auf der Webseite sichtbar
+        errorLogContainer.style.display = 'block';
+
+        // Erstelle ein neues Element für diese spezifische Fehlermeldung
+        const errorMessageElement = document.createElement('div');
+        errorMessageElement.className = 'error-message';
+        
+        // Extrahiere den Dateinamen aus dem vollen Pfad für eine kürzere Anzeige
+        const fileName = event.filename.split('/').pop();
+        
+        // Formatiere die Fehlermeldung für die Anzeige
+        errorMessageElement.textContent = `🐛 FEHLER: "${event.message}"\n📄 Datei: ${fileName} (Zeile: ${event.lineno})`;
+        
+        // Füge die neue Fehlermeldung ganz oben im Container ein
+        errorLogContainer.prepend(errorMessageElement);
     });
+    
+    // === TEST-FUNKTION FÜR DAS FEHLER-TOOL ===
+    const errorTestButton = document.getElementById('errorTestButton');
+    errorTestButton.addEventListener('click', () => {
+        console.log("Löse absichtlich einen Fehler aus...");
+        // Wir rufen eine Funktion auf, die es nicht gibt, um einen Fehler zu provozieren.
+        eineFunktionDieNichtExistiert();
+    });
+
 
     try {
         // === GRUNDSETUP DER SIMULATION ===
-        
         console.log("FTS Simulation wird initialisiert...");
-
         const canvas = document.getElementById('simulationCanvas');
         const ctx = canvas.getContext('2d');
-
-        // Wir setzen die Größe der Simulationsfläche fest.
         canvas.width = 800;
         canvas.height = 600;
-
-        // Test-Zeichnung, um zu prüfen, ob alles funktioniert.
-        // Wir füllen den Hintergrund mit einer leichten Farbe.
         ctx.fillStyle = '#e9e9e9';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        ctx.fillStyle = 'red';
+        ctx.fillStyle = 'blue';
         ctx.font = '20px Arial';
-        ctx.fillText('Simulation erfolgreich geladen! Hier startet die Action.', 50, 50);
-
-        console.log("Canvas und Kontext sind bereit. Die Simulation kann beginnen.");
-
-        // Hier wird später die Haupt-Schleife der Simulation aufgerufen.
-        // function gameLoop() { ... }
-        // requestAnimationFrame(gameLoop);
+        ctx.fillText('Schritt 1 abgeschlossen: Grundgerüst mit Fehler-Tool steht!', 50, 50);
+        console.log("Canvas und Kontext sind bereit.");
 
     } catch (error) {
-        // Fängt Initialisierungsfehler ab, falls z.B. das Canvas-Element nicht gefunden wird.
-        console.error("Schwerwiegender Fehler bei der Initialisierung der Simulation:", error);
-        alert("Die Simulation konnte nicht gestartet werden. Bitte die Konsole prüfen.");
+        // Dieser 'catch'-Block wird nun ebenfalls Fehler im Web-Tool anzeigen
+        const event = new ErrorEvent('error', {
+            error: error,
+            message: `Schwerer Initialisierungsfehler: ${error.message}`,
+            filename: 'script.js',
+            lineno: 0 // Zeilennummer ist hier nicht genau, aber der Kontext ist klar
+        });
+        window.dispatchEvent(event);
     }
 });
