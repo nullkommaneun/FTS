@@ -4,51 +4,81 @@ body {
     flex-direction: column;
     align-items: center;
     margin: 0;
-    /* Etwas Platz am unteren Rand für den Fehler-Log lassen */
     padding: 20px 20px 150px 20px; 
     background-color: #f0f2f5;
 }
 
-h1 {
+h1, h2 {
     color: #333;
+    text-align: center;
+}
+
+/* --- NEUE STILE für das Hauptlayout --- */
+.main-container {
+    display: flex;
+    flex-wrap: wrap; /* Auf kleinen Bildschirmen umbrechen */
+    gap: 20px;
+    justify-content: center;
 }
 
 #simulationCanvas {
     border: 2px solid #333;
     background-color: #fff;
-    max-width: 100%; /* Sorgt für bessere mobile Darstellung */
+    max-width: 100%;
+    cursor: crosshair; /* Zeigt dem Nutzer, dass hier gemalt werden kann */
 }
 
-/* --- NEUE STILE FÜR DAS FEHLER-TOOL --- */
+.editor-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
 
-#errorTestButton {
-    margin-top: 20px;
+/* --- NEUE STILE für die Legende --- */
+#legend, #palette {
+    border: 1px solid #ccc;
     padding: 10px 15px;
+    background-color: #fff;
+    border-radius: 8px;
+    min-width: 180px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
     font-size: 16px;
-    cursor: pointer;
 }
 
-#error-log-container {
-    position: fixed; /* Bleibt immer an der gleichen Stelle, auch beim Scrollen */
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    max-height: 120px; /* Begrenzt die Höhe */
-    background-color: #440c0c; /* Dunkelroter Hintergrund */
-    color: #ffc2c2; /* Heller Text für Kontrast */
-    border-top: 2px solid #ff0000;
+.legend-color {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 1px solid #777;
+    margin-right: 10px;
+}
+
+/* --- NEUE STILE für die Werkzeug-Palette --- */
+.palette-item {
     padding: 10px;
-    box-sizing: border-box; /* Padding wird in die Breite eingerechnet */
-    overflow-y: auto; /* Fügt eine Scrollbar hinzu, wenn nötig */
-    font-family: 'Courier New', monospace; /* Besser lesbar für Code-Fehler */
-    font-size: 0.9em;
-    display: none; /* Ist standardmäßig unsichtbar */
-    z-index: 9999; /* Stellt sicher, dass es über allem liegt */
+    border: 2px solid #ccc;
+    margin-bottom: 5px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    font-weight: bold;
 }
 
-.error-message {
-    padding-bottom: 5px;
-    margin-bottom: 5px;
-    border-bottom: 1px solid #772e2e;
-    white-space: pre-wrap; /* Wichtig, damit Zeilenumbrüche im Fehlertext angezeigt werden */
+.palette-item:hover {
+    background-color: #e9e9e9;
 }
+
+.palette-item.selected {
+    border-color: #007bff; /* Blauer Rahmen für das ausgewählte Werkzeug */
+    background-color: #dbeafe;
+}
+
+/* --- FEHLER-TOOL (unverändert) --- */
+#errorTestButton { margin-top: 20px; padding: 10px 15px; font-size: 16px; cursor: pointer; }
+#error-log-container { position: fixed; bottom: 0; left: 0; width: 100%; max-height: 120px; background-color: #440c0c; color: #ffc2c2; border-top: 2px solid #ff0000; padding: 10px; box-sizing: border-box; overflow-y: auto; font-family: 'Courier New', monospace; font-size: 0.9em; display: none; z-index: 9999; }
+.error-message { padding-bottom: 5px; margin-bottom: 5px; border-bottom: 1px solid #772e2e; white-space: pre-wrap; }
