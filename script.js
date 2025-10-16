@@ -1,59 +1,92 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    // === ERWEITERTES FEHLER-TOOL FÜR DIE WEBSITE ===
+    // === FEHLER-TOOL (unverändert) ===
     const errorLogContainer = document.getElementById('error-log-container');
-
     window.addEventListener('error', function(event) {
-        // Log für die Konsole (am PC weiterhin nützlich)
         console.error("Unerwarteter Fehler:", event);
-
-        // Mache den Fehler-Container auf der Webseite sichtbar
         errorLogContainer.style.display = 'block';
-
-        // Erstelle ein neues Element für diese spezifische Fehlermeldung
         const errorMessageElement = document.createElement('div');
         errorMessageElement.className = 'error-message';
-        
-        // Extrahiere den Dateinamen aus dem vollen Pfad für eine kürzere Anzeige
         const fileName = event.filename.split('/').pop();
-        
-        // Formatiere die Fehlermeldung für die Anzeige
         errorMessageElement.textContent = `🐛 FEHLER: "${event.message}"\n📄 Datei: ${fileName} (Zeile: ${event.lineno})`;
-        
-        // Füge die neue Fehlermeldung ganz oben im Container ein
         errorLogContainer.prepend(errorMessageElement);
     });
-    
-    // === TEST-FUNKTION FÜR DAS FEHLER-TOOL ===
     const errorTestButton = document.getElementById('errorTestButton');
     errorTestButton.addEventListener('click', () => {
-        console.log("Löse absichtlich einen Fehler aus...");
-        // Wir rufen eine Funktion auf, die es nicht gibt, um einen Fehler zu provozieren.
         eineFunktionDieNichtExistiert();
     });
 
-
     try {
-        // === GRUNDSETUP DER SIMULATION ===
+        // === GRUNDSETUP DER SIMULATION (leicht angepasst) ===
         console.log("FTS Simulation wird initialisiert...");
         const canvas = document.getElementById('simulationCanvas');
         const ctx = canvas.getContext('2d');
         canvas.width = 800;
         canvas.height = 600;
-        ctx.fillStyle = '#e9e9e9';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = 'blue';
-        ctx.font = '20px Arial';
-        ctx.fillText('Schritt 1 abgeschlossen: Grundgerüst mit Fehler-Tool steht!', 50, 50);
-        console.log("Canvas und Kontext sind bereit.");
+
+        // --- NEU: Konfiguration für unsere Simulation ---
+        const TILE_SIZE = 40; // Jedes Feld im Raster ist 40x40 Pixel groß.
+        const COLORS = {
+            wall: '#333',
+            path: '#fff',
+            station: '#3498db', // Blau
+            goal: '#2ecc71'     // Grün
+        };
+
+        // --- NEU: Das Layout unseres Lagers als 2D-Array (unsere "Karte") ---
+        // 1 = Wand, 0 = Weg, 2 = Ladestation, 3 = Ziel
+        const layout = [
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 3, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 1, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 1],
+            [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 3, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        ];
+
+        // --- NEU: Funktion zum Zeichnen des Layouts ---
+        function drawLayout() {
+            for (let row = 0; row < layout.length; row++) {
+                for (let col = 0; col < layout[row].length; col++) {
+                    const tileType = layout[row][col];
+                    let color;
+
+                    switch (tileType) {
+                        case 1: color = COLORS.wall; break;
+                        case 2: color = COLORS.station; break;
+                        case 3: color = COLORS.goal; break;
+                        default: color = COLORS.path; break;
+                    }
+                    
+                    ctx.fillStyle = color;
+                    ctx.fillRect(col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+                    
+                    // Optional: Ein dünnes Gitter zeichnen für bessere Optik
+                    ctx.strokeStyle = '#ddd';
+                    ctx.strokeRect(col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+                }
+            }
+        }
+        
+        // --- HAUPT-LOGIK ---
+        // Der alte Code zum Füllen des Canvas wird jetzt durch den Aufruf unserer neuen Funktion ersetzt.
+        drawLayout();
+        
+        console.log("Layout erfolgreich gezeichnet.");
 
     } catch (error) {
-        // Dieser 'catch'-Block wird nun ebenfalls Fehler im Web-Tool anzeigen
+        // Fehlerbehandlung bleibt unverändert
         const event = new ErrorEvent('error', {
             error: error,
             message: `Schwerer Initialisierungsfehler: ${error.message}`,
             filename: 'script.js',
-            lineno: 0 // Zeilennummer ist hier nicht genau, aber der Kontext ist klar
+            lineno: 0 
         });
         window.dispatchEvent(event);
     }
