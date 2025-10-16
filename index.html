@@ -8,10 +8,30 @@
 </head>
 <body>
     <h1>FTS Lager-Simulation</h1>
-    <canvas id="simulationCanvas"></canvas>
+
+    <div class="main-container">
+        <canvas id="simulationCanvas"></canvas>
+
+        <div class="editor-controls">
+            <div id="legend">
+                <h2>Legende</h2>
+                <div class="legend-item"><span class="legend-color" style="background-color: #333;"></span> Wand</div>
+                <div class="legend-item"><span class="legend-color" style="background-color: #fff;"></span> Weg</div>
+                <div class="legend-item"><span class="legend-color" style="background-color: #3498db;"></span> Ladestation</div>
+                <div class="legend-item"><span class="legend-color" style="background-color: #2ecc71;"></span> Zielort</div>
+            </div>
+
+            <div id="palette">
+                <h2>Werkzeuge</h2>
+                <div class="palette-item selected" data-type="1">Wand 🧱</div>
+                <div class="palette-item" data-type="0">Weg ⬜</div>
+                <div class="palette-item" data-type="2">Ladestation 🔋</div>
+                <div class="palette-item" data-type="3">Ziel 🎯</div>
+            </div>
+        </div>
+    </div>
 
     <button id="errorTestButton">Test-Fehler auslösen</button>
-
     <div id="error-log-container"></div>
     
     <script src="script.js"></script>
